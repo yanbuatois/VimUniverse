@@ -1,9 +1,9 @@
 package main
 
 import (
+	"VimUniverse/MapEntities"
 	//"strconv"
 	tl "github.com/JoelOtter/termloop"
-	"vimUniverse/MapEntities"
 )
 
 type Player struct {

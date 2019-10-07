@@ -1,11 +1,11 @@
 package main
 
 import (
+	"VimUniverse/MapEntities"
 	tl "github.com/JoelOtter/termloop"
 	"io"
 	"os"
 	"strconv"
-	"vimUniverse/MapEntities"
 )
 
 func check(e error) {
