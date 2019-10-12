@@ -8,19 +8,25 @@ type CommandBar struct {
 	*tl.Rectangle
 	content string
 	*tl.Text
+	firstTime bool
 }
 
 func NewCommandBar() *CommandBar {
 	element := new(CommandBar)
 	element.content = ""
+	element.firstTime = true
 	element.Rectangle = tl.NewRectangle(1, 1, 1, 1, tl.ColorBlack)
 	element.Text = tl.NewText(1, 1, element.content, tl.ColorWhite, tl.ColorBlack)
+	element.AddChar(':')
 
 	return element
 }
 
 func (bar *CommandBar) Tick(event tl.Event) {
-	game.Log("display")
+	if (bar.firstTime && !TheGame.IsBigTextDisplayed) {
+		bar.firstTime = false
+		return
+	}
 	if event.Type == tl.EventKey {
 		switch event.Key {
 		case tl.KeyBackspace, tl.KeyBackspace2:
@@ -36,8 +42,8 @@ func (bar *CommandBar) Tick(event tl.Event) {
 func (bar *CommandBar) SetText(text string) {
 	bar.content = text
 	bar.Text.SetText(text)
-	if text == "" && game.isBarDisplayed {
-		game.HideCommandBar()
+	if text == "" && TheGame.IsBarDisplayed {
+		TheGame.HideCommandBar()
 	}
 }
 
@@ -55,8 +61,8 @@ func (bar *CommandBar) RemoveLastChar() {
 func (bar *CommandBar) ExecuteCommand() {
 	command := bar.content
 	bar.SetText("")
-	if ok, message, color, time := game.RunCommand(command); ok {
-		game.DisplayInfoTextWithTime(message, color, time)
+	if ok, message, color, time := TheGame.RunCommand(command); ok {
+		TheGame.DisplayInfoTextWithTime(message, color, time)
 	}
 }
 

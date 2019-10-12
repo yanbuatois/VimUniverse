@@ -2,25 +2,45 @@ package main
 
 import (
 	tl "github.com/JoelOtter/termloop"
-	"strconv"
+	"strings"
 )
 
 func (game *MyGame) RunCommand(command string) (bool, string, tl.Attr, float64) {
-	displayMessage := false
-	message := ""
+	displayMessage := true
 	textColor := tl.ColorWhite
 	time := float64(30)
 
-	switch command {
-	case ":q", ":q!":
-		game.End()
-	case ":life":
-		displayMessage = true
-		message = strconv.Itoa(game.Player.lives) + " lives remaining."
-	default:
-		displayMessage = true
-		message = "Not a game command: \"" + command + "\"."
+	commandElements := strings.Split(command, " ")
+	commandName := (commandElements[:1][0])[1:]
+	commandParams := commandElements[1:]
+
+	message := "Not a VimUniverse command  " + commandName
+
+	implementedCommands := AllCommands
+
+	for _, comm := range implementedCommands {
+		if comm.Name == commandName || Contains(comm.Alias, commandName) {
+			nbParams := len(commandParams)
+			if (nbParams < comm.MinParams) {
+				return true, "Missing parameters for call " + commandName + ".", tl.ColorWhite, 30
+			} else if (nbParams > comm.MaxParams) {
+				return true, "Trailing characters", tl.ColorWhite, 30
+			} else {
+				return comm.Execute(commandName, commandParams, command, game)
+			}
+		}
 	}
+
+	//switch command {
+	//case ":q", ":q!":
+	//	TheGame.End()
+	//case ":life":
+	//	displayMessage = true
+	//	message = strconv.Itoa(Player.Lives) + " Lives remaining."
+	//default:
+	//	displayMessage = true
+	//	message = "Not a TheGame command: \"" + command + "\"."
+	//}
 
 	return displayMessage, message, textColor, time
 }

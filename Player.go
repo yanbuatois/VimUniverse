@@ -1,27 +1,30 @@
 package main
 
 import (
-	"VimUniverse/MapEntities"
-	//"strconv"
 	tl "github.com/JoelOtter/termloop"
+	"strconv"
 )
 
 type Player struct {
 	*tl.Entity
 	prevX int
 	prevY int
-	level *tl.BaseLevel
-	lives int
+	Level *tl.BaseLevel
+	Lives int
+	onItem *EntityItem
+	inventory [](*Item)
+	CanFloat bool
+	floating bool
 }
 
 func (player *Player) Tick(event tl.Event) {
-	//game.Log("event")
+	//TheGame.Log("event")
 	if event.Type == tl.EventKey {
 		switch event.Key { // If so, switch on the pressed key.
 		case tl.KeyCtrlC:
-			game.DisplayInfoText("Type :q and press <Enter> to abandon your progression and exit VimUniverse.", tl.ColorWhite)
+			TheGame.DisplayInfoText("Type :q and press <Enter> to abandon your progression and exit VimUniverse.", tl.ColorWhite)
 		default:
-			if game.isBarDisplayed {
+			if TheGame.IsBarDisplayed || TheGame.IsBigTextDisplayed {
 				return
 			}
 			switch event.Ch {
@@ -34,7 +37,7 @@ func (player *Player) Tick(event tl.Event) {
 			case 'l':
 				player.MoveRight(1)
 			case ':':
-				game.DisplayCommandBar()
+				TheGame.DisplayCommandBar()
 			}
 		}
 	}
@@ -43,15 +46,30 @@ func (player *Player) Tick(event tl.Event) {
 func (player *Player) Draw(screen *tl.Screen) {
 	screenWidth, screenHeight := screen.Size()
 	x, y := player.Position()
-	player.level.SetOffset(screenWidth/2-x, screenHeight/2-y)
+	player.Level.SetOffset(screenWidth/2-x, screenHeight/2-y)
 	player.Entity.Draw(screen)
 }
 
 func (player *Player) Collide(collision tl.Physical) {
-	if _, rect := collision.(*tl.Rectangle); rect {
+	if _, rect := collision.(*Wall); rect {
 		player.CancelMove()
-	} else if _, waterSquare := collision.(*MapEntities.WaterSquare); waterSquare {
-		player.CancelMove()
+	}
+	if _, waterSquare := collision.(*WaterSquare); waterSquare {
+		if (player.CanFloat) {
+			if (!player.floating) {
+				player.UseBoat()
+			}
+		} else {
+			player.CancelMove()
+		}
+	}
+	if entityItem, ok := collision.(*EntityItem); ok {
+		if (player.onItem != entityItem) {
+			player.onItem = entityItem
+			TheGame.DisplayInfoTextWithTime("You walked on an item ("+entityItem.Item.Name+"). Type \":pick\" to pick it up.", tl.ColorWhite, 10)
+		}
+	} else {
+		player.onItem = nil
 	}
 }
 
@@ -78,12 +96,29 @@ func (player *Player) MoveDown(nb int) {
 func (player *Player) Move(x, y int) {
 	player.prevX, player.prevY = player.Position()
 	player.SetPosition(player.prevX+x, player.prevY+y)
+	if (player.floating) {
+		player.UseBoat()
+	}
+}
+
+func (player *Player) UseBoat() {
+	if (!player.floating) {
+		player.floating = true
+		TheGame.Log(strconv.FormatBool(player.floating))
+		player.SetCell(0, 0, &tl.Cell {Fg: tl.ColorBlack, Ch: '⌴'})
+	} else {
+		player.floating = false
+		TheGame.Log("retour")
+		player.SetCell(0, 0, &tl.Cell{Fg: tl.ColorWhite, Ch: '옷'})
+	}
 }
 
 func NewPlayer() *Player {
 	player := new(Player)
 	player.Entity = tl.NewEntity(1, 1, 1, 1)
-	player.lives = 3
+	player.Lives = 3
+	player.CanFloat = false
+	player.floating = false
 
 	player.SetCell(0, 0, &tl.Cell{Fg: tl.ColorWhite, Ch: '옷'})
 

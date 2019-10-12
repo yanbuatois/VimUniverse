@@ -1,7 +1,6 @@
 package main
 
 import (
-	"VimUniverse/MapEntities"
 	tl "github.com/JoelOtter/termloop"
 	"io"
 	"os"
@@ -52,7 +51,7 @@ func LoadLevel(level int) {
 				case ' ':
 					// Do nothing
 				case '~':
-					waterSquare := MapEntities.NewWaterSquare(currentColumn, currentLine)
+					waterSquare := NewWaterSquare(currentColumn, currentLine)
 					newLevel.AddEntity(waterSquare)
 				case 'S':
 					startingPos = StartingPos{
@@ -60,8 +59,12 @@ func LoadLevel(level int) {
 						y: currentLine,
 					}
 				case 'W':
-					wall := MapEntities.NewWall(currentColumn, currentLine)
+					wall := NewWall(currentColumn, currentLine)
 					newLevel.AddEntity(wall)
+				case 'B':
+					boat := NewBoatItem()
+					boatEntity := NewEntityItem(currentColumn,currentLine,boat)
+					newLevel.AddEntity(boatEntity)
 				default:
 					continue
 				}
@@ -70,8 +73,8 @@ func LoadLevel(level int) {
 		}
 	}
 
-	game.Player.level = newLevel
-	game.Screen().SetLevel(newLevel)
-	newLevel.AddEntity(game.Player)
-	game.Player.SetPosition(startingPos.x, startingPos.y)
+	TheGame.Player.Level = newLevel
+	TheGame.Screen().SetLevel(newLevel)
+	newLevel.AddEntity(TheGame.Player)
+	TheGame.Player.SetPosition(startingPos.x, startingPos.y)
 }

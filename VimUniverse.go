@@ -4,10 +4,8 @@ import (
 	tl "github.com/JoelOtter/termloop"
 )
 
-var game (MyGame)
-
 func main() {
-	game = MyGame{Game: tl.NewGame(), currentLevel: 1}
+	TheGame = MyGame{Game: tl.NewGame(), CurrentLevel: 1}
 
 	//level := tl.NewBaseLevel(tl.Cell{
 	//	Fg: tl.ColorBlack,
@@ -18,14 +16,16 @@ func main() {
 	//level.AddEntity(tl.NewRectangle(10, 10, 50, 20, tl.ColorWhite))
 	//
 	//game.Screen().SetLevel(level)
+	TheGame.SetDebugOn(false)
 	player := NewPlayer()
-	game.SetPlayer(player)
-	game.CallParser()
-	game.Screen().SetFps(60)
-	game.SetDebugOn(true)
-	game.SetEndKey(tl.KeyEsc)
+	TheGame.SetPlayer(player)
+	TheGame.CallParser()
+	TheGame.Screen().SetFps(60)
+	if (!TheGame.DebugOn()) {
+		TheGame.SetEndKey(tl.KeyEsc)
+	}
 
-	game.Log("run")
+	TheGame.Log("run")
 
-	game.Start()
+	TheGame.Start()
 }

@@ -12,15 +12,17 @@ type InfoText struct {
 func (infoText *InfoText) Draw(screen *tl.Screen) {
 	if infoText.time > 0 {
 		infoText.time -= screen.TimeDelta()
+
 		if infoText.time <= 0 {
-			game.HideInfoText()
+			TheGame.HideInfoText()
+			screen.RemoveEntity(infoText)
 		}
 	}
 
 	_, screenHeight := screen.Size()
 
 	var offset int
-	if game.isBarDisplayed {
+	if TheGame.IsBarDisplayed {
 		offset = 2
 	} else {
 		offset = 1
