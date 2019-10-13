@@ -26,5 +26,6 @@ func init() {
 		CommandRetry,
 		CommandExit,
 		CommandLevel,
+		CommandCredits,
 	}
 }

@@ -103,6 +103,7 @@ func (game *MyGame) CallParser() {
 func (game *MyGame) NextLevel() {
 	game.CurrentLevel++
 	game.Player.inventory = [](*Item){}
+	game.Player.CanFloat = false
 	game.CallParser()
 }
 

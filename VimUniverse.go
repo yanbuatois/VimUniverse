@@ -16,7 +16,7 @@ func main() {
 	//level.AddEntity(tl.NewRectangle(10, 10, 50, 20, tl.ColorWhite))
 	//
 	//game.Screen().SetLevel(level)
-	TheGame.SetDebugOn(true)
+	TheGame.SetDebugOn(false)
 	player := NewPlayer()
 	TheGame.SetPlayer(player)
 	TheGame.CallParser()
