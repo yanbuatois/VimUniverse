@@ -16,12 +16,12 @@ func main() {
 	//level.AddEntity(tl.NewRectangle(10, 10, 50, 20, tl.ColorWhite))
 	//
 	//game.Screen().SetLevel(level)
-	TheGame.SetDebugOn(false)
+	TheGame.SetDebugOn(true)
 	player := NewPlayer()
 	TheGame.SetPlayer(player)
 	TheGame.CallParser()
 	TheGame.Screen().SetFps(60)
-	if (!TheGame.DebugOn()) {
+	if !TheGame.DebugOn() {
 		TheGame.SetEndKey(tl.KeyEsc)
 	}
 

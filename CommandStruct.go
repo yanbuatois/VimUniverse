@@ -1,14 +1,17 @@
 package main
 
-import (tl "github.com/JoelOtter/termloop")
+import (
+	tl "github.com/JoelOtter/termloop"
+)
 
 type Command struct {
-	Name string
+	Name        string
 	Description string
-	Alias []string
-	MinParams int
-	MaxParams int
-	Execute func(call string, params []string, fullMessage string, game *MyGame) (bool, string, tl.Attr, float64)
+	Alias       []string
+	MinParams   int
+	MaxParams   int
+	EnableOnEnd bool
+	Execute     func(call string, params []string, fullMessage string, game *MyGame) (bool, string, tl.Attr, float64)
 }
 
 var AllCommands []Command
@@ -20,5 +23,8 @@ func init() {
 		CommandHelp,
 		CommandLife,
 		CommandInventory,
+		CommandRetry,
+		CommandExit,
+		CommandLevel,
 	}
 }

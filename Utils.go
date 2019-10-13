@@ -9,12 +9,6 @@ func Contains(arr []string, str string) bool {
 	return false
 }
 
-func ContainsItem (arr [](*Item), id string) (*Item) {
-	for _, a := range arr {
-		if (a.Id == id) {
-			return a
-		}
-	}
-
-	return nil
+func RemoveIndex(s [](*Item), index int) [](*Item) {
+	return append(s[:index], s[(index+1):]...)
 }

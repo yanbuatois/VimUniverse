@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	tl "github.com/JoelOtter/termloop"
 	"os"
 )
@@ -13,13 +14,15 @@ type MyGame struct {
 	IsBarDisplayed bool
 	*InfoText
 	*Player
-	CurrentLevel int
+	CurrentLevel       int
 	IsBigTextDisplayed bool
 	*BigText
+	Ended   bool
+	endText *EndBigText
 }
 
 func (game *MyGame) DisplayCommandBar() {
-	if (game.IsBarDisplayed) {
+	if game.IsBarDisplayed {
 		game.HideCommandBar()
 	}
 	game.HideInfoText()
@@ -29,10 +32,12 @@ func (game *MyGame) DisplayCommandBar() {
 }
 
 func (game *MyGame) HideCommandBar() {
-	game.Screen().RemoveEntity(game.CommandBar)
 	game.IsBarDisplayed = false
-	game.CommandBar.SetText("")
-	game.CommandBar = nil
+	if game.CommandBar != nil {
+		game.Screen().RemoveEntity(game.CommandBar)
+		game.CommandBar.SetText("")
+		game.CommandBar = nil
+	}
 }
 
 func (game *MyGame) DisplayInfoText(text string, textColor tl.Attr) {
@@ -40,7 +45,7 @@ func (game *MyGame) DisplayInfoText(text string, textColor tl.Attr) {
 }
 
 func (game *MyGame) DisplayInfoTextWithTime(text string, textColor tl.Attr, time float64) {
-	if (game.InfoText != nil) {
+	if game.InfoText != nil {
 		game.HideInfoText()
 	}
 	game.InfoText = new(InfoText)
@@ -50,10 +55,10 @@ func (game *MyGame) DisplayInfoTextWithTime(text string, textColor tl.Attr, time
 }
 
 func (g *MyGame) DisplayBigText(text string) {
-	if (len(text) <= 0) {
+	if len(text) <= 0 {
 		return
 	}
-	if (g.IsBigTextDisplayed) {
+	if g.IsBigTextDisplayed {
 		g.HideBigText()
 	}
 	g.IsBigTextDisplayed = true
@@ -63,8 +68,10 @@ func (g *MyGame) DisplayBigText(text string) {
 
 func (g *MyGame) HideBigText() {
 	g.IsBigTextDisplayed = false
-	g.Screen().RemoveEntity(g.BigText)
-	g.BigText = nil
+	if g.BigText != nil {
+		g.Screen().RemoveEntity(g.BigText)
+		g.BigText = nil
+	}
 }
 
 func (game *MyGame) End() {
@@ -72,8 +79,10 @@ func (game *MyGame) End() {
 }
 
 func (game *MyGame) HideInfoText() {
-	game.Screen().RemoveEntity(game.InfoText)
-	game.InfoText = nil
+	if game.InfoText != nil {
+		game.Screen().RemoveEntity(game.InfoText)
+		game.InfoText = nil
+	}
 }
 
 func (game *MyGame) SetPlayer(player *Player) {
@@ -81,5 +90,49 @@ func (game *MyGame) SetPlayer(player *Player) {
 }
 
 func (game *MyGame) CallParser() {
-	LoadLevel(game.CurrentLevel)
+	success := LoadLevel(game.CurrentLevel)
+
+	if !success && game.CurrentLevel > 1 {
+		game.Win()
+	} else if !success {
+		fmt.Print("No level files found.")
+		game.End()
+	}
+}
+
+func (game *MyGame) NextLevel() {
+	game.CurrentLevel++
+	game.Player.inventory = [](*Item){}
+	game.CallParser()
+}
+
+func (game *MyGame) Win() {
+	game.endGame()
+	game.endText = NewEndBigText(WonText)
+	game.Screen().AddEntity(game.endText)
+}
+
+func (game *MyGame) Lose() {
+	game.endGame()
+	game.endText = NewEndBigText(LostText)
+	game.Screen().AddEntity(game.endText)
+}
+
+func (game *MyGame) endGame() {
+	game.Ended = true
+	game.HideBigText()
+	game.HideInfoText()
+	game.HideCommandBar()
+}
+
+func (game *MyGame) Relaunch() {
+	game.HideInfoText()
+	game.HideBigText()
+	game.HideCommandBar()
+	game.Ended = false
+	game.CurrentLevel = 1
+	game.Player = NewPlayer()
+	game.Screen().RemoveEntity(game.endText)
+	game.endText = nil
+	game.CallParser()
 }

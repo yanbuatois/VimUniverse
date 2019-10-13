@@ -13,9 +13,22 @@ func check(e error) {
 	}
 }
 
-func LoadLevel(level int) {
+func LoadLevel(level int) bool {
 	path := "levels" + string(os.PathSeparator) + strconv.Itoa(level)
+
+	newLevel := tl.NewBaseLevel(tl.Cell{
+		Fg: tl.ColorWhite,
+		Bg: tl.ColorBlack,
+		Ch: ' ',
+	})
+
 	file, err := os.Open(path)
+	if os.IsNotExist(err) {
+		TheGame.Level = newLevel
+		return false
+	} else {
+		check(err)
+	}
 
 	type StartingPos struct {
 		x int
@@ -24,15 +37,8 @@ func LoadLevel(level int) {
 	currentLine := 0
 	currentColumn := 0
 	var startingPos StartingPos
-	check(err)
 
 	readBuffer := make([]byte, 32*1024)
-
-	newLevel := tl.NewBaseLevel(tl.Cell{
-		Fg: tl.ColorWhite,
-		Bg: tl.ColorBlack,
-		Ch: ' ',
-	})
 
 	for {
 		n, err := file.Read(readBuffer)
@@ -63,8 +69,18 @@ func LoadLevel(level int) {
 					newLevel.AddEntity(wall)
 				case 'B':
 					boat := NewBoatItem()
-					boatEntity := NewEntityItem(currentColumn,currentLine,boat)
+					boatEntity := NewEntityItem(currentColumn, currentLine, boat)
 					newLevel.AddEntity(boatEntity)
+				case 'L':
+					lockedDoor := NewLockedDoor(currentColumn, currentLine)
+					newLevel.AddEntity(lockedDoor)
+				case 'O':
+					openDoor := NewOpenDoor(currentColumn, currentLine)
+					newLevel.AddEntity(openDoor)
+				case 'K':
+					key := NewKeyItem()
+					keyEntity := NewEntityItem(currentColumn, currentLine, key)
+					newLevel.AddEntity(keyEntity)
 				default:
 					continue
 				}
@@ -77,4 +93,6 @@ func LoadLevel(level int) {
 	TheGame.Screen().SetLevel(newLevel)
 	newLevel.AddEntity(TheGame.Player)
 	TheGame.Player.SetPosition(startingPos.x, startingPos.y)
+
+	return true
 }

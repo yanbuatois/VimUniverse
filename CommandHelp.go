@@ -11,8 +11,8 @@ var CommandHelp Command = Command{
 	Execute: func(call string, params []string, fullMessage string, game *MyGame) (b bool, s string, attr tl.Attr, f float64) {
 		commands := AllCommands
 		text := ""
-		if (len(commands) <= 0) {
-			text = "No command available"
+		if len(commands) <= 0 {
+			return true, "No command available", tl.ColorWhite, 30
 		} else {
 			for _, cmd := range commands {
 				text += ":" + cmd.Name + " " + cmd.Description + "\n"

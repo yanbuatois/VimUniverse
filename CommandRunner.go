@@ -19,11 +19,11 @@ func (game *MyGame) RunCommand(command string) (bool, string, tl.Attr, float64) 
 	implementedCommands := AllCommands
 
 	for _, comm := range implementedCommands {
-		if comm.Name == commandName || Contains(comm.Alias, commandName) {
+		if (comm.Name == commandName || Contains(comm.Alias, commandName)) && (!game.Ended || comm.EnableOnEnd) {
 			nbParams := len(commandParams)
-			if (nbParams < comm.MinParams) {
+			if nbParams < comm.MinParams {
 				return true, "Missing parameters for call " + commandName + ".", tl.ColorWhite, 30
-			} else if (nbParams > comm.MaxParams) {
+			} else if nbParams > comm.MaxParams {
 				return true, "Trailing characters", tl.ColorWhite, 30
 			} else {
 				return comm.Execute(commandName, commandParams, command, game)
